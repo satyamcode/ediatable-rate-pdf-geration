@@ -155,9 +155,9 @@ public class PdfController {
 
         // Row 1: SPECIAL PRICE
         Paragraph p1 = new Paragraph("SPECIAL PRICE")
-                .setFont(boldFont).setFontSize(9f)
-                .setFontColor(NAVY)
-                .setCharacterSpacing(0.8f)
+                .setFont(boldFont).setFontSize(11f)
+                .setFontColor(BLACK)
+                .setCharacterSpacing(1.2f)
                 .setTextAlignment(TextAlignment.CENTER)
                 .setMargin(0).setPadding(0).setMultipliedLeading(1f);
         Cell c1 = new Cell().setBorder(Border.NO_BORDER)
@@ -167,7 +167,7 @@ public class PdfController {
                 .setPadding(0).add(p1);
         inner.addCell(c1);
 
-        // Row 2: ₹ price (large)
+        // Row 2: Rs price (large)
         Paragraph p2 = new Paragraph()
                 .setTextAlignment(TextAlignment.CENTER)
                 .setMargin(0).setPadding(0).setMultipliedLeading(1f);
@@ -182,9 +182,9 @@ public class PdfController {
 
         // Row 3: SS MART
         Paragraph p3 = new Paragraph("SS MART")
-                .setFont(boldFont).setFontSize(9f)
-                .setFontColor(NAVY)
-                .setCharacterSpacing(0.8f)
+                .setFont(boldFont).setFontSize(11f)
+                .setFontColor(BLACK)
+                .setCharacterSpacing(1.2f)
                 .setTextAlignment(TextAlignment.CENTER)
                 .setMargin(0).setPadding(0).setMultipliedLeading(1f);
         Cell c3 = new Cell().setBorder(Border.NO_BORDER)

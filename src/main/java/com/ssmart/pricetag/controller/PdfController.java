@@ -47,7 +47,7 @@ public class PdfController {
     // A4 = 595 × 842 pt
     private static final float PAGE_W  = PageSize.A4.getWidth();   // 595
     private static final float PAGE_H  = PageSize.A4.getHeight();  // 842
-    private static final float MARGIN  = 12f;
+    private static final float MARGIN  = 24f;   // doubled from 12
     private static final float COL_GAP =  6f;
     private static final float ROW_GAP =  5f;
 
@@ -144,10 +144,10 @@ public class PdfController {
         float iX   = x + pad;
         float iY   = y + pad;
 
-        // Section heights — proportions: 22% / 56% / 22%
-        float topH = iH * 0.22f;
-        float midH = iH * 0.56f;
-        float botH = iH * 0.22f;
+        // Section heights — proportions: 20% / 60% / 20%
+        float topH = iH * 0.20f;
+        float midH = iH * 0.60f;
+        float botH = iH * 0.20f;
 
         // Build a 1-column, 3-row inner table to handle the vertical sections
         Table inner = new Table(new float[]{iW});
@@ -171,9 +171,7 @@ public class PdfController {
         Paragraph p2 = new Paragraph()
                 .setTextAlignment(TextAlignment.CENTER)
                 .setMargin(0).setPadding(0).setMultipliedLeading(1f);
-        p2.add(new Text("₹ ")
-                .setFont(rupeeFont).setFontSize(19f).setFontColor(BLACK));
-        p2.add(new Text(displayPrice + "/-")
+        p2.add(new Text("Rs " + displayPrice + "/-")
                 .setFont(boldFont).setFontSize(36f).setFontColor(BLACK));
         Cell c2 = new Cell().setBorder(Border.NO_BORDER)
                 .setHeight(midH)

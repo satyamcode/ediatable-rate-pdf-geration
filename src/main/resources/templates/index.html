@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>SS Mart — Price Label Generator</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f0f4f8;
+            min-height: 100vh;
+            color: #1a1a2e;
+        }
+
+        /* ===== Header ===== */
+        header {
+            background: linear-gradient(135deg, #003366 0%, #0066cc 100%);
+            color: #fff;
+            padding: 16px 28px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 3px 12px rgba(0,51,102,0.35);
+        }
+        header .logo-badge {
+            background: #fff;
+            color: #003366;
+            font-weight: 900;
+            font-size: 1.05rem;
+            padding: 7px 13px;
+            border-radius: 8px;
+            letter-spacing: 1px;
+        }
+        header h1 { font-size: 1.4rem; font-weight: 700; }
+        header p  { font-size: 0.82rem; opacity: 0.8; margin-top: 2px; }
+
+        /* ===== Main Layout ===== */
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 16px;
+            display: grid;
+            grid-template-columns: 270px 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        /* ===== Control Panel (sidebar) ===== */
+        .control-panel {
+            background: #fff;
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: 0 4px 20px rgba(0,51,102,0.10);
+            position: sticky;
+            top: 16px;
+        }
+        .control-panel h2 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #003366;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e8f0fe;
+        }
+        .form-group { margin-bottom: 18px; }
+        .form-group label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Slider */
+        .count-row { display: flex; align-items: center; gap: 10px; }
+        input[type="range"] {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 6px;
+            background: #e0e8f5;
+            border-radius: 3px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px; height: 20px;
+            background: #0066cc;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,102,204,0.4);
+        }
+        .count-badge {
+            background: #003366;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1rem;
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* Quick-count buttons */
+        .quick-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+        .quick-btn {
+            background: #e8f0fe; color: #003366;
+            border: 1px solid #c5d8f6; border-radius: 6px;
+            padding: 5px 10px; font-size: 0.76rem; font-weight: 600;
+            cursor: pointer; transition: all 0.15s;
+        }
+        .quick-btn:hover { background: #003366; color: #fff; border-color: #003366; }
+
+        /* Info box */
+        .info-box {
+            background: #e8f0fe; border-left: 3px solid #0066cc;
+            border-radius: 0 8px 8px 0; padding: 10px 12px;
+            font-size: 0.8rem; color: #003366; margin-bottom: 18px; line-height: 1.5;
+        }
+        .info-box strong { display: block; margin-bottom: 4px; }
+
+        /* Download button */
+        .btn-generate {
+            width: 100%;
+            background: linear-gradient(135deg, #003366, #0066cc);
+            color: #fff; border: none; border-radius: 12px;
+            padding: 13px; font-size: 0.95rem; font-weight: 700;
+            cursor: pointer; letter-spacing: 0.5px; transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(0,102,204,0.35);
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-generate:hover  { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,102,204,0.45); }
+        .btn-generate:active { transform: translateY(0); }
+        .btn-generate svg    { width: 20px; height: 20px; }
+
+        /* ===== Preview Area ===== */
+        .preview-area h2 {
+            font-size: 1rem; font-weight: 700; color: #003366;
+            margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+        }
+        .preview-subtitle { font-size: 0.76rem; color: #888; font-weight: 400; }
+
+        /*
+         * Label grid — plain card layout, NO A4 simulation.
+         * Each card is big enough to read clearly.
+         */
+        .label-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        /* ── Individual label card ── */
+        .label-card {
+            background: #fff;
+            border: 2px solid #222;           /* black border like the physical label */
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 14px 10px;
+            min-height: 120px;
+            cursor: text;
+            transition: box-shadow 0.15s, border-color 0.15s;
+            position: relative;
+        }
+        /* Dashed cut-line style between cards (right + bottom) */
+        .label-card { outline: 2px dashed transparent; }
+        .label-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.15); }
+
+        .label-card.inactive {
+            background: #f8f8f8;
+            border-color: #ccc;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        /* SPECIAL PRICE */
+        .label-top {
+            font-size: 13px;
+            font-weight: 800;
+            color: #111;
+            text-align: center;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* ₹ + price row */
+        .label-mid {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 4px;
+        }
+        .label-rupee {
+            font-size: 22px;
+            font-weight: 900;
+            color: #111;
+            line-height: 1;
+        }
+        .label-price-input {
+            border: none;
+            border-bottom: 2px solid #555;
+            outline: none;
+            font-size: 36px;
+            font-weight: 900;
+            color: #111;
+            text-align: center;
+            width: 120px;
+            background: transparent;
+            padding: 0 4px;
+            line-height: 1;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        .label-price-input::placeholder { color: #aaa; }
+        .label-price-input:focus { border-bottom-color: #003366; }
+        .label-suffix {
+            font-size: 22px;
+            font-weight: 900;
+            color: #111;
+            line-height: 1;
+            margin-left: 1px;
+        }
+
+        /* SS MART */
+        .label-bot {
+            font-size: 13px;
+            font-weight: 800;
+            color: #111;
+            text-align: center;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 860px) {
+            main { grid-template-columns: 1fr; }
+            .control-panel { position: static; }
+            .label-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 500px) {
+            .label-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-badge">SS MART</div>
+    <div>
+        <h1>Price Label Generator</h1>
+        <p>Create downloadable A4 price tags — up to 27 labels per page</p>
+    </div>
+</header>
+
+<main>
+
+    <!-- ===== Sidebar ===== -->
+    <aside class="control-panel">
+        <h2>⚙️ Settings</h2>
+
+        <div class="info-box">
+            <strong>How it works:</strong>
+            Choose how many labels, type the price in each card, then click <em>Download PDF</em>.
+        </div>
+
+        <div class="form-group">
+            <label>Number of Blocks</label>
+            <div class="count-row">
+                <input type="range" id="blockSlider" min="1" max="27" value="9"/>
+                <div class="count-badge" id="countBadge">9</div>
+            </div>
+            <div class="quick-btns">
+                <button type="button" class="quick-btn" onclick="setCount(3)">3</button>
+                <button type="button" class="quick-btn" onclick="setCount(6)">6</button>
+                <button type="button" class="quick-btn" onclick="setCount(9)">9</button>
+                <button type="button" class="quick-btn" onclick="setCount(12)">12</button>
+                <button type="button" class="quick-btn" onclick="setCount(18)">18</button>
+                <button type="button" class="quick-btn" onclick="setCount(27)">All 27</button>
+            </div>
+        </div>
+
+        <button type="button" class="btn-generate" onclick="submitPdf()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Download PDF
+        </button>
+    </aside>
+
+    <!-- ===== Preview ===== -->
+    <section class="preview-area">
+        <h2>
+            🗒️ Live Preview
+            <span class="preview-subtitle">(click any price field to edit)</span>
+        </h2>
+        <div class="label-grid" id="labelGrid">
+            <!-- Built by JS -->
+        </div>
+    </section>
+
+</main>
+
+<script>
+    const MAX_BLOCKS = 27;
+    const grid       = document.getElementById('labelGrid');
+    const slider     = document.getElementById('blockSlider');
+    const countBadge = document.getElementById('countBadge');
+
+    let currentCount = parseInt(slider.value);
+
+    // Build all 27 cards once
+    function buildGrid() {
+        grid.innerHTML = '';
+        for (let i = 0; i < MAX_BLOCKS; i++) {
+            const card = document.createElement('div');
+            card.className = 'label-card ' + (i < currentCount ? 'active' : 'inactive');
+            card.id = 'cell-' + i;
+
+            card.innerHTML = `
+                <div class="label-top">SPECIAL PRICE</div>
+                <div class="label-mid">
+                    <span class="label-rupee">&#8377;</span>
+                    <input class="label-price-input"
+                           id="price-${i}"
+                           type="number" min="0" placeholder="0"
+                           ${i >= currentCount ? 'disabled tabindex="-1"' : ''}
+                    />
+                    <span class="label-suffix">/-</span>
+                </div>
+                <div class="label-bot">SS MART</div>
+            `;
+            grid.appendChild(card);
+        }
+    }
+
+    // Activate / deactivate cards
+    function updateGrid(newCount) {
+        currentCount = newCount;
+        countBadge.textContent = newCount;
+        for (let i = 0; i < MAX_BLOCKS; i++) {
+            const card  = document.getElementById('cell-' + i);
+            const input = document.getElementById('price-' + i);
+            if (i < newCount) {
+                card.className = 'label-card active';
+                input.disabled = false;
+                input.removeAttribute('tabindex');
+            } else {
+                card.className = 'label-card inactive';
+                input.disabled = true;
+                input.setAttribute('tabindex', '-1');
+            }
+        }
+    }
+
+    function setCount(n) {
+        slider.value = n;
+        updateGrid(n);
+    }
+
+    slider.addEventListener('input', () => updateGrid(parseInt(slider.value)));
+
+    // Download PDF without leaving the page
+    function submitPdf() {
+        const btn = document.querySelector('.btn-generate');
+        btn.disabled = true;
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+            style="width:20px;height:20px;animation:spin 1s linear infinite">
+            <path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Generating…`;
+
+        const formData = new FormData();
+        formData.append('blockCount', currentCount);
+        for (let i = 0; i < currentCount; i++) {
+            const input = document.getElementById('price-' + i);
+            formData.append('prices', input.value || '0');
+        }
+
+        fetch('/generate-pdf', { method: 'POST', body: formData })
+            .then(res => {
+                if (!res.ok) throw new Error('Server error');
+                return res.blob();
+            })
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                const a   = document.createElement('a');
+                a.href     = url;
+                a.download = 'SS_Mart_Price_Labels.pdf';
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
+            })
+            .catch(err => alert('Failed to generate PDF: ' + err.message))
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg> Download PDF`;
+            });
+    }
+
+    buildGrid();
+</script>
+
+</body>
+</html>

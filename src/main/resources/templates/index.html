@@ -6,248 +6,99 @@
     <title>SS Mart — Price Label Generator</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: #f0f4f8;
-            min-height: 100vh;
-            color: #1a1a2e;
-        }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; min-height: 100vh; color: #1a1a2e; }
 
         /* ===== Header ===== */
         header {
             background: linear-gradient(135deg, #003366 0%, #0066cc 100%);
-            color: #fff;
-            padding: 16px 28px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
+            color: #fff; padding: 16px 28px;
+            display: flex; align-items: center; gap: 16px;
             box-shadow: 0 3px 12px rgba(0,51,102,0.35);
         }
-        header .logo-badge {
-            background: #fff;
-            color: #003366;
-            font-weight: 900;
-            font-size: 1.05rem;
-            padding: 7px 13px;
-            border-radius: 8px;
-            letter-spacing: 1px;
-        }
-        header h1 { font-size: 1.4rem; font-weight: 700; }
-        header p  { font-size: 0.82rem; opacity: 0.8; margin-top: 2px; }
+        header .logo-badge { background:#fff; color:#003366; font-weight:900; font-size:1.05rem; padding:7px 13px; border-radius:8px; letter-spacing:1px; }
+        header h1 { font-size:1.4rem; font-weight:700; }
+        header p  { font-size:0.82rem; opacity:0.8; margin-top:2px; }
 
         /* ===== Main Layout ===== */
-        main {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px 16px;
-            display: grid;
-            grid-template-columns: 270px 1fr;
-            gap: 20px;
-            align-items: start;
-        }
+        main { max-width:1400px; margin:0 auto; padding:20px 16px; display:grid; grid-template-columns:280px 1fr; gap:20px; align-items:start; }
 
-        /* ===== Control Panel (sidebar) ===== */
-        .control-panel {
-            background: #fff;
-            border-radius: 16px;
-            padding: 22px;
-            box-shadow: 0 4px 20px rgba(0,51,102,0.10);
-            position: sticky;
-            top: 16px;
-        }
-        .control-panel h2 {
-            font-size: 1rem;
-            font-weight: 700;
-            color: #003366;
-            margin-bottom: 16px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #e8f0fe;
-        }
-        .form-group { margin-bottom: 18px; }
-        .form-group label {
-            display: block;
-            font-size: 0.78rem;
-            font-weight: 600;
-            color: #555;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+        /* ===== Sidebar ===== */
+        .control-panel { background:#fff; border-radius:16px; padding:22px; box-shadow:0 4px 20px rgba(0,51,102,0.10); position:sticky; top:16px; }
+        .control-panel h2 { font-size:1rem; font-weight:700; color:#003366; margin-bottom:16px; padding-bottom:10px; border-bottom:2px solid #e8f0fe; }
+        .form-group { margin-bottom:18px; }
+        .form-group label { display:block; font-size:0.78rem; font-weight:600; color:#555; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px; }
 
-        /* Slider */
-        .count-row { display: flex; align-items: center; gap: 10px; }
-        input[type="range"] {
-            flex: 1;
-            -webkit-appearance: none;
-            height: 6px;
-            background: #e0e8f5;
-            border-radius: 3px;
-            outline: none;
+        /* ── Label Type Tabs ── */
+        .type-tabs { display:flex; flex-direction:column; gap:8px; margin-bottom:18px; }
+        .type-tab {
+            border: 2px solid #e0e8f5; border-radius:10px; padding:10px 12px;
+            cursor:pointer; background:#f8faff; transition:all 0.15s;
+            display:flex; align-items:center; gap:10px;
+            text-align:left;
         }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 20px; height: 20px;
-            background: #0066cc;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,102,204,0.4);
-        }
-        .count-badge {
-            background: #003366;
-            color: #fff;
-            font-weight: 700;
-            font-size: 1rem;
-            width: 40px; height: 40px;
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
-        }
+        .type-tab:hover { border-color:#0066cc; background:#e8f0fe; }
+        .type-tab.active { border-color:#003366; background:#003366; color:#fff; }
+        .type-tab .tab-icon { font-size:1.2rem; flex-shrink:0; }
+        .type-tab .tab-label { font-size:0.82rem; font-weight:700; }
+        .type-tab .tab-example { font-size:0.72rem; opacity:0.7; margin-top:1px; }
+        .type-tab.active .tab-example { opacity:0.85; }
 
-        /* Quick-count buttons */
-        .quick-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-        .quick-btn {
-            background: #e8f0fe; color: #003366;
-            border: 1px solid #c5d8f6; border-radius: 6px;
-            padding: 5px 10px; font-size: 0.76rem; font-weight: 600;
-            cursor: pointer; transition: all 0.15s;
-        }
-        .quick-btn:hover { background: #003366; color: #fff; border-color: #003366; }
+        /* ── Slider ── */
+        .count-row { display:flex; align-items:center; gap:10px; }
+        input[type="range"] { flex:1; -webkit-appearance:none; height:6px; background:#e0e8f5; border-radius:3px; outline:none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; height:20px; background:#0066cc; border-radius:50%; cursor:pointer; box-shadow:0 2px 6px rgba(0,102,204,0.4); }
+        .count-badge { background:#003366; color:#fff; font-weight:700; font-size:1rem; width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .quick-btns { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+        .quick-btn { background:#e8f0fe; color:#003366; border:1px solid #c5d8f6; border-radius:6px; padding:5px 10px; font-size:0.76rem; font-weight:600; cursor:pointer; transition:all 0.15s; }
+        .quick-btn:hover { background:#003366; color:#fff; border-color:#003366; }
 
-        /* Info box */
-        .info-box {
-            background: #e8f0fe; border-left: 3px solid #0066cc;
-            border-radius: 0 8px 8px 0; padding: 10px 12px;
-            font-size: 0.8rem; color: #003366; margin-bottom: 18px; line-height: 1.5;
-        }
-        .info-box strong { display: block; margin-bottom: 4px; }
+        /* ── Info box ── */
+        .info-box { background:#e8f0fe; border-left:3px solid #0066cc; border-radius:0 8px 8px 0; padding:10px 12px; font-size:0.8rem; color:#003366; margin-bottom:18px; line-height:1.5; }
+        .info-box strong { display:block; margin-bottom:4px; }
 
-        /* Download button */
-        .btn-generate {
-            width: 100%;
-            background: linear-gradient(135deg, #003366, #0066cc);
-            color: #fff; border: none; border-radius: 12px;
-            padding: 13px; font-size: 0.95rem; font-weight: 700;
-            cursor: pointer; letter-spacing: 0.5px; transition: all 0.2s;
-            box-shadow: 0 4px 14px rgba(0,102,204,0.35);
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
-        .btn-generate:hover  { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,102,204,0.45); }
-        .btn-generate:active { transform: translateY(0); }
-        .btn-generate svg    { width: 20px; height: 20px; }
+        /* ── Download button ── */
+        .btn-generate { width:100%; background:linear-gradient(135deg,#003366,#0066cc); color:#fff; border:none; border-radius:12px; padding:13px; font-size:0.95rem; font-weight:700; cursor:pointer; letter-spacing:0.5px; transition:all 0.2s; box-shadow:0 4px 14px rgba(0,102,204,0.35); display:flex; align-items:center; justify-content:center; gap:8px; }
+        .btn-generate:hover  { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,102,204,0.45); }
+        .btn-generate:active { transform:translateY(0); }
+        .btn-generate svg    { width:20px; height:20px; }
 
-        /* ===== Preview Area ===== */
-        .preview-area h2 {
-            font-size: 1rem; font-weight: 700; color: #003366;
-            margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
-        }
-        .preview-subtitle { font-size: 0.76rem; color: #888; font-weight: 400; }
+        /* ===== Preview ===== */
+        .preview-area h2 { font-size:1rem; font-weight:700; color:#003366; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+        .preview-subtitle { font-size:0.76rem; color:#888; font-weight:400; }
 
-        /*
-         * Label grid — plain card layout, NO A4 simulation.
-         * Each card is big enough to read clearly.
-         */
-        .label-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
+        /* Label grid — 3-column card layout */
+        .label-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; }
 
         /* ── Individual label card ── */
         .label-card {
-            background: #fff;
-            border: 2px solid #222;           /* black border like the physical label */
-            border-radius: 4px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            padding: 14px 10px;
-            min-height: 120px;
-            cursor: text;
-            transition: box-shadow 0.15s, border-color 0.15s;
-            position: relative;
+            background:#fff; border:2px solid #222; border-radius:6px;
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            gap:4px; padding:14px 10px; min-height:120px; cursor:text;
+            transition:box-shadow 0.15s;
         }
-        /* Dashed cut-line style between cards (right + bottom) */
-        .label-card { outline: 2px dashed transparent; }
-        .label-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.15); }
+        .label-card:hover { box-shadow:0 2px 12px rgba(0,0,0,0.15); }
+        .label-card.inactive { background:#f8f8f8; border-color:#ccc; opacity:0.4; pointer-events:none; }
 
-        .label-card.inactive {
-            background: #f8f8f8;
-            border-color: #ccc;
-            opacity: 0.4;
-            pointer-events: none;
-        }
-
-        /* SPECIAL PRICE */
-        .label-top {
-            font-size: 14px;
-            font-weight: 900;
-            color: #111;
-            text-align: center;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-        }
-
-        /* ₹ + price row */
-        .label-mid {
-            display: flex;
-            align-items: baseline;
-            justify-content: center;
-            gap: 4px;
-        }
-        .label-rupee {
-            font-size: 36px;
-            font-weight: 900;
-            color: #111;
-            line-height: 1;
-        }
+        /* Card text parts */
+        .label-top { font-size:14px; font-weight:900; color:#111; text-align:center; letter-spacing:1.5px; text-transform:uppercase; }
+        .label-mid { display:flex; align-items:baseline; justify-content:center; gap:4px; flex-wrap:wrap; }
+        .label-prefix { font-size:36px; font-weight:900; color:#111; line-height:1; }
         .label-price-input {
-            border: none;
-            border-bottom: 2px solid #555;
-            outline: none;
-            font-size: 36px;
-            font-weight: 900;
-            color: #111;
-            text-align: center;
-            width: 120px;
-            background: transparent;
-            padding: 0 4px;
-            line-height: 1;
-            font-family: 'Segoe UI', Arial, sans-serif;
+            border:none; border-bottom:2px solid #555; outline:none;
+            font-size:36px; font-weight:900; color:#111; text-align:center;
+            width:110px; background:transparent; padding:0 2px; line-height:1;
+            font-family:'Segoe UI',Arial,sans-serif;
         }
-        .label-price-input::placeholder { color: #aaa; }
-        .label-price-input:focus { border-bottom-color: #003366; }
-        .label-suffix {
-            font-size: 22px;
-            font-weight: 900;
-            color: #111;
-            line-height: 1;
-            margin-left: 1px;
-        }
-
-        /* SS MART */
-        .label-bot {
-            font-size: 14px;
-            font-weight: 900;
-            color: #111;
-            text-align: center;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-        }
+        .label-price-input::placeholder { color:#aaa; }
+        .label-price-input:focus { border-bottom-color:#003366; }
+        .label-suffix { font-size:28px; font-weight:900; color:#111; line-height:1; }
+        .label-bot { font-size:14px; font-weight:900; color:#111; text-align:center; letter-spacing:1.5px; text-transform:uppercase; }
 
         /* ===== Responsive ===== */
-        @media (max-width: 860px) {
-            main { grid-template-columns: 1fr; }
-            .control-panel { position: static; }
-            .label-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (max-width: 500px) {
-            .label-grid { grid-template-columns: 1fr; }
-        }
+        @media (max-width:860px) { main { grid-template-columns:1fr; } .control-panel { position:static; } .label-grid { grid-template-columns:repeat(2,1fr); } }
+        @media (max-width:500px) { .label-grid { grid-template-columns:1fr; } }
     </style>
 </head>
 <body>
@@ -268,9 +119,38 @@
 
         <div class="info-box">
             <strong>How it works:</strong>
-            Choose how many labels, type the price in each card, then click <em>Download PDF</em>.
+            Pick a label type, set how many labels, type the value in each card, then click <em>Download PDF</em>.
         </div>
 
+        <!-- Label Type -->
+        <div class="form-group">
+            <label>Label Type</label>
+            <div class="type-tabs">
+                <button class="type-tab active" onclick="setLabelType('PRICE', this)">
+                    <span class="tab-icon">💰</span>
+                    <div>
+                        <div class="tab-label">Price Label</div>
+                        <div class="tab-example">SPECIAL PRICE · Rs 100/-</div>
+                    </div>
+                </button>
+                <button class="type-tab" onclick="setLabelType('AMOUNT_OFF', this)">
+                    <span class="tab-icon">🏷️</span>
+                    <div>
+                        <div class="tab-label">Amount OFF</div>
+                        <div class="tab-example">SPECIAL DISCOUNT · Rs 50 OFF</div>
+                    </div>
+                </button>
+                <button class="type-tab" onclick="setLabelType('PERCENT_OFF', this)">
+                    <span class="tab-icon">📊</span>
+                    <div>
+                        <div class="tab-label">Percent OFF</div>
+                        <div class="tab-example">SPECIAL OFFER · 20% OFF</div>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Block count -->
         <div class="form-group">
             <label>Number of Blocks</label>
             <div class="count-row">
@@ -288,8 +168,7 @@
         </div>
 
         <button type="button" class="btn-generate" onclick="submitPdf()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                 stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                 <polyline points="7 10 12 15 17 10"/>
                 <line x1="12" y1="15" x2="12" y2="3"/>
@@ -302,11 +181,9 @@
     <section class="preview-area">
         <h2>
             🗒️ Live Preview
-            <span class="preview-subtitle">(click any price field to edit)</span>
+            <span class="preview-subtitle" id="previewSubtitle">(click any price to edit)</span>
         </h2>
-        <div class="label-grid" id="labelGrid">
-            <!-- Built by JS -->
-        </div>
+        <div class="label-grid" id="labelGrid"></div>
     </section>
 
 </main>
@@ -318,33 +195,74 @@
     const countBadge = document.getElementById('countBadge');
 
     let currentCount = parseInt(slider.value);
+    let labelType    = 'PRICE';
 
-    // Build all 27 cards once
+    // Preserve entered values across type switches
+    const savedValues = new Array(MAX_BLOCKS).fill('');
+
+    // ── Label type config ──────────────────────────────────────────────
+    const typeConfig = {
+        PRICE: {
+            topText:    'SPECIAL PRICE',
+            prefix:     'Rs',
+            suffix:     '/-',
+            placeholder:'0',
+            inputLabel: 'Enter price'
+        },
+        AMOUNT_OFF: {
+            topText:    'SPECIAL DISCOUNT',
+            prefix:     'Rs',
+            suffix:     'OFF',
+            placeholder:'0',
+            inputLabel: 'Enter amount off'
+        },
+        PERCENT_OFF: {
+            topText:    'SPECIAL OFFER',
+            prefix:     '',
+            suffix:     '% OFF',
+            placeholder:'0',
+            inputLabel: 'Enter percent'
+        }
+    };
+
+    // ── Build all 27 cards ─────────────────────────────────────────────
     function buildGrid() {
         grid.innerHTML = '';
+        const cfg = typeConfig[labelType];
+
         for (let i = 0; i < MAX_BLOCKS; i++) {
             const card = document.createElement('div');
             card.className = 'label-card ' + (i < currentCount ? 'active' : 'inactive');
             card.id = 'cell-' + i;
 
+            const prefixHtml = cfg.prefix
+                ? `<span class="label-prefix">${cfg.prefix}</span>`
+                : '';
+
             card.innerHTML = `
-                <div class="label-top">SPECIAL PRICE</div>
+                <div class="label-top">${cfg.topText}</div>
                 <div class="label-mid">
-                    <span class="label-rupee">Rs</span>
+                    ${prefixHtml}
                     <input class="label-price-input"
                            id="price-${i}"
-                           type="number" min="0" placeholder="0"
+                           type="number" min="0"
+                           placeholder="${cfg.placeholder}"
+                           value="${savedValues[i]}"
                            ${i >= currentCount ? 'disabled tabindex="-1"' : ''}
+                           oninput="savedValues[${i}] = this.value"
                     />
-                    <span class="label-suffix">/-</span>
+                    <span class="label-suffix">${cfg.suffix}</span>
                 </div>
                 <div class="label-bot">SS MART</div>
             `;
             grid.appendChild(card);
         }
+
+        document.getElementById('previewSubtitle').textContent =
+            '(' + cfg.inputLabel + ' in each box)';
     }
 
-    // Activate / deactivate cards
+    // ── Activate / deactivate cards ────────────────────────────────────
     function updateGrid(newCount) {
         currentCount = newCount;
         countBadge.textContent = newCount;
@@ -363,6 +281,13 @@
         }
     }
 
+    function setLabelType(type, btn) {
+        labelType = type;
+        document.querySelectorAll('.type-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        buildGrid(); // rebuild cards with new format
+    }
+
     function setCount(n) {
         slider.value = n;
         updateGrid(n);
@@ -370,45 +295,34 @@
 
     slider.addEventListener('input', () => updateGrid(parseInt(slider.value)));
 
-    // Download PDF without leaving the page
+    // ── Download PDF ───────────────────────────────────────────────────
     function submitPdf() {
         const btn = document.querySelector('.btn-generate');
         btn.disabled = true;
-        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-            style="width:20px;height:20px;animation:spin 1s linear infinite">
-            <path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Generating…`;
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Generating…`;
 
         const formData = new FormData();
         formData.append('blockCount', currentCount);
+        formData.append('labelType',  labelType);
         for (let i = 0; i < currentCount; i++) {
             const input = document.getElementById('price-' + i);
             formData.append('prices', input.value || '0');
         }
 
         fetch('/generate-pdf', { method: 'POST', body: formData })
-            .then(res => {
-                if (!res.ok) throw new Error('Server error');
-                return res.blob();
-            })
+            .then(res => { if (!res.ok) throw new Error('Server error'); return res.blob(); })
             .then(blob => {
                 const url = URL.createObjectURL(blob);
                 const a   = document.createElement('a');
-                a.href     = url;
-                a.download = 'SS_Mart_Price_Labels.pdf';
-                document.body.appendChild(a);
-                a.click();
+                const names = { PRICE:'SS_Mart_Price_Labels.pdf', AMOUNT_OFF:'SS_Mart_Amount_OFF.pdf', PERCENT_OFF:'SS_Mart_Percent_OFF.pdf' };
+                a.href = url; a.download = names[labelType] || 'SS_Mart_Labels.pdf';
+                document.body.appendChild(a); a.click();
                 setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
             })
-            .catch(err => alert('Failed to generate PDF: ' + err.message))
+            .catch(err => alert('Failed: ' + err.message))
             .finally(() => {
                 btn.disabled = false;
-                btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="7 10 12 15 17 10"/>
-                    <line x1="12" y1="15" x2="12" y2="3"/>
-                    </svg> Download PDF`;
+                btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download PDF`;
             });
     }
 
